@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceFlow Pro - TTS Test</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #FFC107;
+            --error-color: #F44336;
+            --success-color: #4CAF50;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        select, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .range-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+        }
+
+        .value-display {
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #readButton {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        #pauseButton {
+            background-color: var(--secondary-color);
+            color: black;
+        }
+
+        #stopReadButton {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        #clearHistoryButton {
+            background-color: #9E9E9E;
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+        }
+
+        .toast.info {
+            background-color: var(--primary-color);
+        }
+
+        .toast.warning {
+            background-color: var(--secondary-color);
+        }
+
+        .toast.error {
+            background-color: var(--error-color);
+        }
+
+        #ttsOfflineIndicator {
+            background-color: var(--error-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .history-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .history-item {
+            background: #f8f8f8;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .history-item:hover {
+            background: #eee;
+        }
+
+        .voice-select-container {
+            margin: 15px 0;
+        }
+
+        #voiceSelect {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #voiceSelect optgroup {
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        #voiceSelect option {
+            padding: 8px;
+            color: #333;
+        }
+
+        #voiceSelect option[data-premium="true"] {
+            color: #ff9800;
+            font-weight: 500;
+        }
+
+        .voice-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .voice-info .premium {
+            color: #ff9800;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VoiceFlow Pro - TTS Test</h1>
+        
+        <div id="ttsOfflineIndicator"></div>
+        
+        <div class="controls">
+            <div class="voice-select-container">
+                <label for="voiceSelect">Select Voice:</label>
+                <select id="voiceSelect"></select>
+                <div class="voice-info">
+                    &#x2605; Premium voice (requires internet connection)
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label for="rateRange">Rate:</label>
+                <div class="range-control">
+                    <input type="range" id="rateRange" min="0.5" max="2" value="1" step="0.1">
+                    <span id="rateValue" class="value-display">1</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label for="pitchRange">Pitch:</label>
+                <div class="range-control">
+                    <input type="range" id="pitchRange" min="0.5" max="2" value="1" step="0.1">
+                    <span id="pitchValue" class="value-display">1</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label for="volumeRange">Volume:</label>
+                <div class="range-control">
+                    <input type="range" id="volumeRange" min="0" max="1" value="1" step="0.1">
+                    <span id="volumeValue" class="value-display">1</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label for="textOutput">Text to Read:</label>
+                <textarea id="textOutput" placeholder="Enter text to read..."></textarea>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button id="readButton">Read</button>
+            <button id="pauseButton" disabled>Pause</button>
+            <button id="stopReadButton" disabled>Stop</button>
+            <button id="clearHistoryButton">Clear History</button>
+        </div>
+        
+        <div class="history-section">
+            <h2>History</h2>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import tts from './js/tts.js';
+        
+        // Set up history display
+        const historyList = document.getElementById('historyList');
+        const clearHistoryButton = document.getElementById('clearHistoryButton');
+        
+        async function updateHistory() {
+            const history = await tts.getHistory();
+            historyList.innerHTML = '';
+            
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div><strong>Text:</strong> ${item.text.substring(0, 100)}${item.text.length > 100 ? '...' : ''}</div>
+                    <div><small>Voice: ${item.settings.voice}, Rate: ${item.settings.rate}, Pitch: ${item.settings.pitch}</small></div>
+                    <div><small>Time: ${new Date(item.timestamp).toLocaleString()}</small></div>
+                `;
+                
+                historyItem.addEventListener('click', () => {
+                    document.getElementById('textOutput').value = item.text;
+                    if (item.settings.voice) {
+                        document.getElementById('voiceSelect').value = item.settings.voice;
+                    }
+                    document.getElementById('rateRange').value = item.settings.rate;
+                    document.getElementById('pitchRange').value = item.settings.pitch;
+                    document.getElementById('volumeRange').value = item.settings.volume;
+                    
+                    // Update displayed values
+                    document.getElementById('rateValue').textContent = item.settings.rate;
+                    document.getElementById('pitchValue').textContent = item.settings.pitch;
+                    document.getElementById('volumeValue').textContent = item.settings.volume;
+                });
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // Update history initially and after each speech
+        updateHistory();
+        
+        // Clear history button
+        clearHistoryButton.addEventListener('click', async () => {
+            await tts.clearHistory();
+            updateHistory();
+        });
+        
+        // Update history after speech ends
+        const originalSpeak = tts.speak.bind(tts);
+        tts.speak = async function(text) {
+            await originalSpeak(text);
+            updateHistory();
+        };
+    </script>
+</body>
+</html>

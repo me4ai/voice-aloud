@@ -1,145 +1,192 @@
+/* Base styles */
 :root {
     --primary-color: #4CAF50;
-    --premium-color: #FFD700;
-    --dark-gray: #333;
-    --light-gray: #f5f5f5;
-    --border-radius: 8px;
-    --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --secondary-color: #45a049;
+    --accent-color: #ff9800;
+    --text-color: #333;
+    --bg-color: #f5f5f5;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Global Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: var(--light-gray);
-    color: var(--dark-gray);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--bg-color);
 }
 
-/* Header */
+/* Header styles */
 header {
-    background-color: white;
-    padding: 1rem 2rem;
-    box-shadow: var(--box-shadow);
+    background-color: var(--card-bg);
+    padding: 1rem;
+    box-shadow: var(--shadow);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--primary-color);
+.auth-section {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }
 
-/* Container */
+/* Container and layout */
 .container {
     max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
-/* Feature Cards */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
     margin-bottom: 2rem;
 }
 
+/* Feature cards */
 .feature-card {
-    background: white;
+    background: var(--card-bg);
+    border-radius: 8px;
     padding: 1.5rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    box-shadow: var(--shadow);
 }
 
 .feature-card h3 {
-    margin-bottom: 1rem;
     color: var(--primary-color);
+    margin-bottom: 1rem;
 }
 
-/* Premium Features */
-.premium-badge {
-    background: linear-gradient(45deg, var(--premium-color), #FFA500);
-    color: var(--dark-gray);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.3s ease;
+.premium {
+    border: 2px solid var(--accent-color);
 }
 
-.premium-badge:hover {
-    transform: scale(1.05);
-}
-
-.premium-icon {
-    color: var(--premium-color);
-}
-
-.premium-btn {
-    background: linear-gradient(45deg, var(--premium-color), #FFA500);
-    color: var(--dark-gray);
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.premium-btn:hover {
-    transform: scale(1.05);
-}
-
-/* Voice Settings */
-.voice-settings {
-    background: white;
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    margin-bottom: 2rem;
-}
-
-.voice-params {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+/* Quick actions */
+.quick-actions {
+    display: flex;
     gap: 1rem;
-    margin: 1rem 0;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
-/* Controls */
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.action-btn:hover {
+    background: var(--secondary-color);
+}
+
+/* Recording controls */
 .control-group {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
 }
 
-button {
-    background-color: var(--primary-color);
-    color: white;
+.recording-status {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-color);
+    border-radius: 6px;
+}
+
+#audioVisualizer {
+    width: 100%;
+    height: 60px;
+    background: var(--card-bg);
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+/* Text area and controls */
+#textOutput {
+    width: 100%;
+    min-height: 200px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    resize: vertical;
+    margin-bottom: 1rem;
+}
+
+.toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.toolbar button {
+    padding: 0.5rem;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: var(--border-radius);
+    border-radius: 4px;
+    background: var(--bg-color);
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background-color: #45a049;
+/* Voice settings */
+.voice-settings {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
 }
 
-button:disabled {
-    background-color: var(--light-gray);
-    cursor: not-allowed;
+.voice-params {
+    display: grid;
+    gap: 1rem;
+    margin: 1rem 0;
 }
 
-/* Modals */
+/* Drag & Drop zone */
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: border-color 0.3s;
+}
+
+.drop-zone.highlight {
+    border-color: var(--primary-color);
+    background: rgba(76, 175, 80, 0.1);
+}
+
+/* Recent recordings */
+.recordings-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.recording-item {
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+}
+
+/* Modal styles */
 .modal {
     display: none;
     position: fixed;
@@ -147,15 +194,16 @@ button:disabled {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
 }
 
 .modal-content {
-    background: white;
+    background: var(--card-bg);
     margin: 10% auto;
     padding: 2rem;
-    border-radius: var(--border-radius);
-    max-width: 800px;
+    border-radius: 8px;
+    max-width: 500px;
     position: relative;
 }
 
@@ -163,15 +211,28 @@ button:disabled {
     position: absolute;
     right: 1rem;
     top: 1rem;
-    font-size: 1.5rem;
     cursor: pointer;
+    font-size: 1.5rem;
 }
 
-/* Auth Forms */
+/* Auth forms */
 .auth-tabs {
     display: flex;
     gap: 1rem;
     margin-bottom: 1.5rem;
+}
+
+.auth-tab {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.auth-tab.active {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 .auth-form {
@@ -181,67 +242,108 @@ button:disabled {
 }
 
 .auth-form input {
-    padding: 0.5rem;
-    border: 1px solid var(--light-gray);
-    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
 }
 
-/* Pricing Plans */
+/* Pricing plans */
 .pricing-plans {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
     margin: 2rem 0;
 }
 
 .pricing-plan {
-    background: white;
+    background: var(--card-bg);
     padding: 2rem;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     text-align: center;
-    transition: transform 0.3s ease;
+    box-shadow: var(--shadow);
 }
 
 .pricing-plan.featured {
+    border: 2px solid var(--accent-color);
     transform: scale(1.05);
-    border: 2px solid var(--premium-color);
-}
-
-.pricing-plan h3 {
-    color: var(--primary-color);
-    margin-bottom: 1rem;
 }
 
 .price {
     font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    margin: 1rem 0;
 }
 
-.pricing-plan ul {
-    list-style: none;
-    margin-bottom: 1.5rem;
+/* Buttons */
+.primary-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-.pricing-plan li {
-    margin-bottom: 0.5rem;
+.secondary-btn {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-/* Payment Section */
-#card-element {
-    padding: 1rem;
-    border: 1px solid var(--light-gray);
-    border-radius: var(--border-radius);
-    margin-bottom: 1rem;
+.premium-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-#card-errors {
-    color: red;
-    margin-bottom: 1rem;
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
-/* Responsive Design */
+/* Toast notifications */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 1rem 2rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    display: none;
+    z-index: 1000;
+}
+
+.toast.error {
+    background: #f44336;
+}
+
+.toast.warning {
+    background: #ff9800;
+}
+
+/* Premium badge */
+.premium-badge {
+    background: var(--accent-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+/* Responsive design */
 @media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
     .features-grid {
         grid-template-columns: 1fr;
     }
@@ -250,7 +352,59 @@ button:disabled {
         grid-template-columns: 1fr;
     }
 
+    .pricing-plan.featured {
+        transform: none;
+    }
+
     .modal-content {
         margin: 5% 1rem;
     }
+}
+
+/* PWA install button */
+.install-button {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+}
+
+/* Loading states */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
 }

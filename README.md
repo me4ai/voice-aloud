@@ -1,91 +1,67 @@
-# VoiceFlow Pro
+# VoiceFlow Pro - Voice Transcription Web App
 
-A premium voice transcription web application with advanced features for audio recording, transcription, and text-to-speech conversion.
+An offline-first voice recording and transcription web application with advanced export capabilities.
 
 ## Features
 
-### Basic Features (Free Tier)
-- Voice recording with Bluetooth device support
-- Basic transcription
-- Text-to-speech with standard voices
-- Drag & drop text file support
-- Clipboard text input
+- 🎙️ Real-time Voice Transcription
+  - Continuous paragraph transcription
+  - Multiple language support
+  - Confidence score tracking
+  - Automatic punctuation
 
-### Premium Features ($9.99/month)
-- Premium voice selection
-- Voice emotions
-- Background music
-- MP3/WAV export
-- Unlimited recordings
+- 🔊 Text-to-Speech
+  - Multiple voice options
+  - Language-specific voices
+  - Adjustable speech parameters
+  - Voice preview
 
-### Enterprise Features ($29.99/month)
-- Video generation
-- Custom branding
-- API access
-- Priority support
-- Team collaboration
+- 💾 Advanced Export Options
+  - MP3 audio export
+  - Animated transcript video
+  - Recording management
+  - Offline storage
 
-## Tech Stack
-
-### Frontend
-- HTML5
-- Vanilla JavaScript
-- Web Speech API
-- MediaRecorder API
-- Clipboard API
-
-### Backend
-- Node.js
-- Express.js
-- MongoDB
-- Socket.IO
-- JWT Authentication
-
-### Cloud Services
-- AWS SDK
-- Google Cloud Text-to-Speech
-- Stripe Payments
+- 📱 User-Friendly Interface
+  - Clean, modern design
+  - Real-time feedback
+  - Easy recording management
+  - Intuitive controls
 
 ## Getting Started
 
 1. Clone the repository:
-```bash
-git clone https://github.com/me4ai/voice-aloud.git
-cd voice-aloud
-```
+   ```bash
+   git clone https://github.com/yourusername/voiceflow-pro.git
+   ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+2. Open `test-recording.html` in a modern web browser (Chrome recommended)
 
-3. Create a `.env` file with your configuration:
-```env
-PORT=3000
-MONGODB_URI=your_mongodb_uri
-JWT_SECRET=your_jwt_secret
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-AWS_REGION=your_aws_region
-GOOGLE_APPLICATION_CREDENTIALS=path_to_credentials.json
-```
+3. Allow microphone access when prompted
 
-4. Start the server:
-```bash
-npm start
-```
+## Browser Support
 
-5. Visit `http://localhost:3000` in your browser
+- Primary: Google Chrome
+- Secondary: Firefox, Edge
+- Limited: Safari
 
-## Development
+## Technical Details
 
-For development with auto-reload:
-```bash
-npm run dev
-```
+Built with vanilla JavaScript using:
+- Web Speech API
+- Web Audio API
+- MediaRecorder API
+- Canvas API
+- IndexedDB
 
 ## License
 
-MIT License
+MIT License - Feel free to use and modify as needed!
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request

@@ -1,25 +1,61 @@
 const CACHE_NAME = 'voiceflow-pro-v1';
-const OFFLINE_URL = '/voice-aloud/offline.html';
+const OFFLINE_URL = '/offline.html';
 
 const ASSETS_TO_CACHE = [
-    '/voice-aloud/',
-    '/voice-aloud/index.html',
-    '/voice-aloud/styles.css',
-    '/voice-aloud/manifest.json',
-    '/voice-aloud/offline.html',
-    '/voice-aloud/icons/icon-192x192.png',
-    '/voice-aloud/icons/icon-512x512.png',
-    '/voice-aloud/js/config.js',
-    '/voice-aloud/js/api.js',
-    '/voice-aloud/js/auth.js',
-    '/voice-aloud/js/recording.js',
-    '/voice-aloud/js/transcription.js',
-    '/voice-aloud/js/tts.js',
-    '/voice-aloud/js/ui.js',
-    '/voice-aloud/js/storage.js',
-    '/voice-aloud/js/premium.js',
-    '/voice-aloud/js/app.js'
+    '/',
+    '/index.html',
+    '/css/styles.css',
+    '/manifest.json',
+    '/offline.html',
+    '/assets/icons/icon-192x192.png',
+    '/assets/icons/icon-512x512.png',
+    '/js/config.js',
+    '/js/services/firebase.js',
+    '/js/recording.js',
+    '/js/transcription.js',
+    '/js/tts.js',
+    '/js/auth.js',
+    '/js/storage.js',
+    '/js/ui.js',
+    '/js/app.js'
 ];
+
+// Cache strategies
+const CACHE_STRATEGIES = {
+    CACHE_FIRST: async (request) => {
+        const cache = await caches.open(CACHE_NAME);
+        const cachedResponse = await cache.match(request);
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+        const networkResponse = await fetch(request);
+        await cache.put(request, networkResponse.clone());
+        return networkResponse;
+    },
+    NETWORK_FIRST: async (request) => {
+        try {
+            const networkResponse = await fetch(request);
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, networkResponse.clone());
+            return networkResponse;
+        } catch (error) {
+            const cachedResponse = await caches.match(request);
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            throw error;
+        }
+    },
+    STALE_WHILE_REVALIDATE: async (request) => {
+        const cache = await caches.open(CACHE_NAME);
+        const cachedResponse = await cache.match(request);
+        const networkResponsePromise = fetch(request).then(response => {
+            cache.put(request, response.clone());
+            return response;
+        });
+        return cachedResponse || networkResponsePromise;
+    }
+};
 
 // Install event - cache assets
 self.addEventListener('install', event => {
@@ -49,116 +85,104 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch event - serve from cache or network
+// Fetch event with improved routing
 self.addEventListener('fetch', event => {
-    // Skip cross-origin requests
-    if (!event.request.url.startsWith(self.location.origin)) {
+    // Skip non-GET requests and Firebase API requests
+    if (
+        event.request.method !== 'GET' ||
+        event.request.url.includes('firebaseapp.com') ||
+        event.request.url.includes('googleapis.com')
+    ) {
         return;
     }
 
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    return response;
-                }
+    const url = new URL(event.request.url);
 
-                return fetch(event.request)
-                    .then(response => {
-                        // Check if we received a valid response
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-
-                        // Clone the response
-                        const responseToCache = response.clone();
-
-                        // Cache the response
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(event.request, responseToCache);
-                            });
-
-                        return response;
-                    })
-                    .catch(() => {
-                        // If offline and requesting a page, show offline page
-                        if (event.request.mode === 'navigate') {
-                            return caches.match(OFFLINE_URL);
-                        }
-                    });
-            })
-    );
+    // Handle different types of requests
+    if (ASSETS_TO_CACHE.includes(url.pathname)) {
+        // Static assets - Cache First
+        event.respondWith(CACHE_STRATEGIES.CACHE_FIRST(event.request));
+    } else if (url.pathname.startsWith('/api/')) {
+        // API requests - Network First
+        event.respondWith(CACHE_STRATEGIES.NETWORK_FIRST(event.request));
+    } else if (event.request.headers.get('accept').includes('text/html')) {
+        // HTML navigation - Network First with offline fallback
+        event.respondWith(
+            fetch(event.request)
+                .catch(() => caches.match(OFFLINE_URL))
+        );
+    } else {
+        // Everything else - Stale While Revalidate
+        event.respondWith(CACHE_STRATEGIES.STALE_WHILE_REVALIDATE(event.request));
+    }
 });
 
 // Background sync for offline recordings
 self.addEventListener('sync', event => {
     if (event.tag === 'sync-recordings') {
-        event.waitUntil(syncRecordings());
+        event.waitUntil(syncPendingRecordings());
     }
 });
 
-async function syncRecordings() {
-    try {
-        const cache = await caches.open('voiceflow-data');
-        const response = await cache.match('/data/pending-recordings');
-        if (response) {
-            const pendingRecordings = await response.json();
-            
-            // Process each pending recording
-            for (const recording of pendingRecordings) {
-                try {
-                    // Attempt to upload
-                    await fetch('/api/recordings', {
-                        method: 'POST',
-                        body: JSON.stringify(recording),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    
-                    // Remove from pending if successful
-                    const updatedPending = pendingRecordings
-                        .filter(r => r.id !== recording.id);
-                    await cache.put(
-                        '/data/pending-recordings',
-                        new Response(JSON.stringify(updatedPending))
-                    );
-                } catch (error) {
-                    console.error('Error syncing recording:', error);
-                }
+async function syncPendingRecordings() {
+    const pendingRecordings = await getPendingRecordings();
+    if (!pendingRecordings.length) return;
+
+    for (const recording of pendingRecordings) {
+        try {
+            // Get the recording file from IndexedDB
+            const recordingBlob = await getRecordingFromIndexedDB(recording.id);
+            if (!recordingBlob) continue;
+
+            // Upload to Firebase Storage
+            const formData = new FormData();
+            formData.append('file', recordingBlob, recording.filename);
+            formData.append('metadata', JSON.stringify(recording.metadata));
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Remove from pending queue
+                await removePendingRecording(recording.id);
+                // Remove from IndexedDB
+                await deleteRecordingFromIndexedDB(recording.id);
             }
+        } catch (error) {
+            console.error('Error syncing recording:', error);
         }
-    } catch (error) {
-        console.error('Error in syncRecordings:', error);
     }
 }
 
-// Push notifications
+// Push notification handler
 self.addEventListener('push', event => {
+    const data = event.data.json();
+    
     const options = {
-        body: event.data.text(),
-        icon: '/voice-aloud/icons/icon-192x192.png',
-        badge: '/voice-aloud/icons/badge.png',
+        body: data.body,
+        icon: '/assets/icons/icon-192x192.png',
+        badge: '/assets/icons/badge.png',
         vibrate: [100, 50, 100],
         data: {
-            dateOfArrival: Date.now(),
-            primaryKey: 1
+            url: data.url,
+            dateOfArrival: Date.now()
         },
         actions: [
             {
-                action: 'explore',
-                title: 'View Recording'
+                action: 'open',
+                title: 'Open App'
             },
             {
                 action: 'close',
-                title: 'Close'
+                title: 'Dismiss'
             }
         ]
     };
 
     event.waitUntil(
-        self.registration.showNotification('VoiceFlow Pro', options)
+        self.registration.showNotification(data.title || 'VoiceFlow Pro', options)
     );
 });
 
@@ -166,10 +190,22 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
     event.notification.close();
 
-    if (event.action === 'explore') {
-        // Open the app and navigate to the recording
+    if (event.action === 'open') {
+        const urlToOpen = event.notification.data.url || '/';
         event.waitUntil(
-            clients.openWindow('/voice-aloud/')
+            clients.matchAll({ type: 'window' })
+                .then(windowClients => {
+                    // Check if there is already a window/tab open with the target URL
+                    for (const client of windowClients) {
+                        if (client.url === urlToOpen && 'focus' in client) {
+                            return client.focus();
+                        }
+                    }
+                    // If no window/tab is open, open a new one
+                    if (clients.openWindow) {
+                        return clients.openWindow(urlToOpen);
+                    }
+                })
         );
     }
 });
